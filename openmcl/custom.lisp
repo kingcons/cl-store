@@ -8,6 +8,3 @@
 
 (defrestore-cl-store (structure-object stream)
   (restore-type-object stream))
-
-
-; EOF

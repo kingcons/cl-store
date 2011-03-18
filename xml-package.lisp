@@ -5,11 +5,11 @@
   (:use #:cl #:cl-store)
   (:export #:*xml-backend*
            #:add-xml-mapping #:defstore-xml #:defrestore-xml #:princ-and-store
-           #:princ-xml #:restore-first #:with-tag #:first-child 
+           #:princ-xml #:restore-first #:with-tag #:first-child
            #:second-child #:get-child)
   (:import-from #:cl-store #:when-let #:generic-function-name #:get-function-name
                 #:force #:setting #:resolving-object)
-  
+
   #+sbcl (:import-from #:sb-mop
                        #:generic-function-name
                        #:slot-definition-name
@@ -54,13 +54,13 @@
                        #:class-direct-superclasses
                        #:class-slots
                        #:ensure-class)
-  
+
   #+cmu (:shadowing-import-from #:pcl
                                 #:class-name
                                 #:find-class
                                 #:standard-class
                                 #:class-of)
-  
+
   #+openmcl (:import-from #:openmcl-mop
                           #:generic-function-name
                           #:slot-definition-name
@@ -78,7 +78,7 @@
                           #:class-direct-superclasses
                           #:class-slots
                           #:ensure-class)
-  
+
   #+clisp (:import-from #:clos
                         #:slot-value
                         #:std-compute-slots
@@ -88,7 +88,7 @@
                         #:class-direct-slots
                         #:class-slots
                         #:ensure-class)
-  
+
   #+lispworks  (:import-from #:clos
                              #:slot-definition-name
                              #:generic-function-name
@@ -106,7 +106,7 @@
                              #:class-slots
                              #:class-direct-superclasses
                              #:ensure-class)
-  
+
   #+allegro (:import-from #:mop
                           #:slot-definition-name
                           #:generic-function-name
@@ -125,6 +125,3 @@
                           #:class-slots
                           #:ensure-class)
   )
-           
-
-;; EOF

@@ -19,7 +19,7 @@
     (resolving-object new-instance
       (dolist (slot (xmls:node-children (get-child "SLOTS" place)))
         (let ((slot-name (restore-first (get-child "NAME" slot))))
-          (setting (slot-value slot-name) 
+          (setting (slot-value slot-name)
                    (restore-first (get-child "VALUE" slot))))))))
 
 
@@ -32,7 +32,7 @@
                         (cond
                          ((cl-store::positive-infinity-p obj)
                           (with-tag ("POSITIVE-INFINITY" stream))
-                          (return-from body)) 
+                          (return-from body))
                          ((cl-store::negative-infinity-p obj)
                           (with-tag ("NEGATIVE-INFINITY" stream))
                           (return-from body))
@@ -40,7 +40,7 @@
                           (with-tag ("FLOAT-NAN" stream))
                           (return-from body))
                          (t nil)))))
-        (multiple-value-bind (signif exp sign) 
+        (multiple-value-bind (signif exp sign)
             (integer-decode-float obj)
           (with-tag ("FLOAT" stream)
             (princ-and-store "SIGNIFICAND" signif stream)
@@ -59,5 +59,3 @@
 (defrestore-xml (float-nan stream)
   (declare (ignore stream))
   cl-store::+nan-float+)
-
-;; EOF

@@ -1,10 +1,8 @@
 ;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Base: 10 -*-
 ;; See the file LICENCE for licence information.
 
-;(in-package :cl-store.system)
-
 (defpackage #:cl-store
-  (:use #:cl) 
+  (:use #:cl)
   (:export #:backend #:magic-number #:stream-type
            #:restorers #:resolving-backend #:find-backend #:defbackend
            #:*restore-counter* #:*need-to-fix* #:*restored-values*
@@ -13,7 +11,7 @@
            #:*nuke-existing-classes* #:*store-class-superclasses*
            #:cl-store-error #:store-error #:restore-error #:store
            #:restore #:backend-store #:store-backend-code #:store-object
-           #:backend-store-object 
+           #:backend-store-object
            #:restore #:backend-restore #:cl-store #:referrerp
            #:check-magic-number #:get-next-reader #:int-or-char-p
            #:restore-object #:backend-restore-object #:serializable-slots
@@ -32,7 +30,7 @@
            #:with-serialization-unit #:create-serialize-hash
 
            #:alias-backend)
-  
+
   #+sbcl (:import-from #:sb-mop
                        #:generic-function-name
                        #:slot-definition-allocation
@@ -58,7 +56,7 @@
                       #:class-direct-superclasses
                       #:class-slots
                       #:ensure-class)
-  
+
   #+cmu  (:import-from #:pcl
                        #:generic-function-name
                        #:slot-definition-allocation
@@ -75,13 +73,13 @@
                        #:class-direct-superclasses
                        #:class-slots
                        #:ensure-class)
-  
+
   #+cmu (:shadowing-import-from #:pcl
                                 #:class-name
                                 #:find-class
                                 #:standard-class
                                 #:class-of)
-  
+
   #+openmcl (:import-from #:openmcl-mop
                           #:generic-function-name
                           #:slot-definition-allocation
@@ -115,7 +113,7 @@
                            #:class-direct-superclasses
                            #:class-slots
                            #:ensure-class)
-  
+
   #+(and clisp (not mop)) (:import-from #:clos
                         #:slot-value
                         #:std-compute-slots
@@ -125,7 +123,7 @@
                         #:class-direct-slots
                         #:class-slots
                         #:ensure-class)
-  
+
   #+lispworks (:import-from #:clos
                #:generic-function-name
                #:slot-definition-allocation
@@ -159,7 +157,7 @@
                      #:class-slots
                      #:class-direct-superclasses
                      #:ensure-class)
-  
+
   #+allegro (:import-from #:mop
                           #:generic-function-name
                           #:slot-definition-allocation
@@ -180,7 +178,7 @@
 
                        ;; All the commented out methods are defined in
                        ;; abcl/custom.lisp
-                       
+
                        #:generic-function-name
                        ;;#:slot-definition-allocation
                        #:slot-definition
@@ -197,4 +195,3 @@
                        ; #:class-slots
                        #:ensure-class)
   )
-;; EOF

@@ -5,7 +5,6 @@
 ;; ITS PRESENCE IS FOR POSTERITY ONLY
 (in-package :cl-store-xml)
 
-
 (defbackend xml :stream-type 'character :extends (resolving-backend))
 
 ;; The xml backend does not use any type codes
@@ -43,7 +42,7 @@
   (format stream "</~A>" tag))
 
 (defmacro with-tag ((tag stream) &body body)
-  `(progn 
+  `(progn
     (format ,stream "<~A>" ,tag)
     ,@body
     (format ,stream "</~A>" ,tag)))
@@ -164,7 +163,7 @@
            (restore-first (get-child "IMAGPART" from))))
 
 
-;; symbols 
+;; symbols
 (defstore-xml (obj symbol stream)
   (with-tag ("SYMBOL" stream)
     (princ-and-store "NAME" (symbol-name obj) stream)
@@ -208,7 +207,7 @@
     (princ-and-store "VERSION" (pathname-version obj) stream)))
 
 (defrestore-xml (pathname place)
-  (make-pathname 
+  (make-pathname
    :device (restore-first (get-child "DEVICE" place))
    :directory (restore-first (get-child "DIRECTORY" place))
    :name (restore-first (get-child "NAME" place))
@@ -239,7 +238,7 @@
     (with-tag ("SLOTS" stream)
       (dolist (slot all-slots)
         (when (slot-boundp obj (slot-definition-name slot))
-          (when (or *store-class-slots* 
+          (when (or *store-class-slots*
                     (eql (slot-definition-allocation slot) :instance))
             (with-tag ("SLOT" stream)
               (let ((slot-name (slot-definition-name slot)))
@@ -263,7 +262,7 @@
 
 ;; classes
 
-;; FIXME : Write me 
+;; FIXME : Write me
 
 ;; built in classes
 (defstore-xml (obj built-in-class stream)
@@ -276,10 +275,10 @@
 ;; FIXME: restore built in classes
 
 ;; arrays and vectors
-;; FIXME : Write me 
+;; FIXME : Write me
 
 ;; packages
-;; FIXME : Write me 
+;; FIXME : Write me
 
 ;; functions
 (defstore-xml (obj function stream)
@@ -291,11 +290,11 @@
 ;; generic functions
 (defstore-xml (obj generic-function stream)
   (if (generic-function-name obj)
-      (princ-and-store "GENERIC-FUNCTION" 
+      (princ-and-store "GENERIC-FUNCTION"
                        (generic-function-name obj) stream)
       (store-error "No generic function name for ~A." obj)))
 
-(defrestore-xml (generic-function from) 
+(defrestore-xml (generic-function from)
   (fdefinition (restore-first from)))
 
 (setf *default-backend* (find-backend 'xml))
@@ -306,9 +305,9 @@
 
 
 (defrestore-xml (hash-table place)
-  (let ((hash1 (make-hash-table 
+  (let ((hash1 (make-hash-table
                 :rehash-size (restore-first (get-child "REHASH-SIZE" place))
-                :rehash-threshold (restore-first 
+                :rehash-threshold (restore-first
                                    (get-child "REHASH-THRESHOLD" place))
                 :size (restore-first (get-child "SIZE" place))
                 :test (symbol-function (restore-first (get-child "TEST" place))))))
@@ -316,7 +315,7 @@
       (dolist (entry (xmls:node-children (get-child "ENTRIES" place)))
         (let* ((key-place (first-child (first-child entry)))
                (val-place (first-child (second-child entry))))
-          (setting-hash (restore-object key-place) 
+          (setting-hash (restore-object key-place)
                         (restore-object val-place)))))
     hash1))
 
@@ -327,7 +326,7 @@
     (resolving-object new-instance
       (dolist (slot (xmls:node-children (get-child "SLOTS" place)))
         (let ((slot-name (restore-first (get-child "NAME" slot))))
-          (setting (slot-value slot-name) 
+          (setting (slot-value slot-name)
                    (restore-first (get-child "VALUE" slot))))))
     new-instance))
 
@@ -359,7 +358,7 @@
     (with-tag ("SUPERCLASSES" stream)
       (loop for x in (class-direct-superclasses obj) do
             (unless (eql x (find-class 'standard-object))
-              (princ-and-store "SUPERCLASS" 
+              (princ-and-store "SUPERCLASS"
                                (if *store-class-superclasses*
                                    x
                                    (class-name x))
@@ -382,7 +381,7 @@
         collect (restore-first value)))
 
 (defun get-slots (slots)
-  (loop for slot in (xmls:node-children slots) 
+  (loop for slot in (xmls:node-children slots)
         collect (list :name (restore-first (get-child "NAME" slot))
                       :allocation (restore-first (get-child "ALLOCATION" slot))
                       :type (restore-first (get-child "TYPE" slot))
@@ -393,7 +392,7 @@
 (defun get-superclasses (superclasses)
   (loop for superclass in (xmls:node-children superclasses)
         collect (restore-first superclass)))
-        
+
 (defrestore-xml (standard-class  place)
   (let* ((name (restore-first (get-child "NAME" place)))
          (superclasses (get-superclasses (get-child "SUPERCLASSES" place)))
@@ -405,16 +404,16 @@
                   it
                   (xml-add-class name slots superclasses metaclass))))))
 
-;; built-in-classes 
+;; built-in-classes
 (defstore-xml (obj built-in-class stream)
   (princ-and-store "BUILT-IN-CLASS" (class-name obj) stream))
 
 (defrestore-xml (built-in-class place)
   (find-class (restore-first place)))
 
-;; I don't know if this really qualifies as a built-in-class but it 
+;; I don't know if this really qualifies as a built-in-class but it
 ;; does make things a bit easier
-(defmethod internal-store-object ((obj (eql (find-class 'hash-table))) stream 
+(defmethod internal-store-object ((obj (eql (find-class 'hash-table))) stream
                                   (backend xml-backend))
   (princ-and-store "BUILT-IN-CLASS" 'cl:hash-table stream))
 
@@ -447,7 +446,7 @@
          (displaced-offset (restore-first (get-child "DISPLACED-OFFSET"
                                                      place)))
          (adjustable (restore-first (get-child "ADJUSTABLE" place)))
-         (res (make-array dimensions  
+         (res (make-array dimensions
                           :element-type element-type
                           :adjustable adjustable
                           :fill-pointer fill-pointer)))
@@ -480,7 +479,6 @@
             (let ((copy (1- index)))
               (setting (aref copy)
                        (restore-first element)))))))
-                                      
+
 
 |#
-;; EOF

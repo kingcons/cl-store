@@ -13,5 +13,3 @@
 
 (defrestore-xml (random-obj stream)
   (random (restore-first stream)))
-
-;; EOF

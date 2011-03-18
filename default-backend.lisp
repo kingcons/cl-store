@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Base: 10 -*-
 ;; See the file LICENCE for licence information.
 
-;; The cl-store backend. 
+;; The cl-store backend.
 (in-package :cl-store)
 
 (defbackend cl-store :magic-number 1279478851
@@ -11,7 +11,7 @@
                                         1349740876 1884506444 1347643724 1349732684 1953713219
                                         1416850499 1395477571)
             :extends (resolving-backend)
-            :fields ((restorers :accessor restorers 
+            :fields ((restorers :accessor restorers
                                 :initform (make-hash-table :size 100))))
 
 (defun register-code (code name &optional (errorp nil))
@@ -85,7 +85,7 @@
 
 ;; get-next-reader needs to return a symbol which will be used by the
 ;; backend to lookup the function that was defined by
-;; defrestore-cl-store to restore it, or nil if not found. 
+;; defrestore-cl-store to restore it, or nil if not found.
 (defun lookup-code (code)
   (declare (optimize speed (safety 0) (space 0) (debug 0)))
   (gethash code *restorers*))
@@ -120,7 +120,7 @@
   nil)
 
 ;; integers
-;; The theory is that most numbers will fit in 32 bits 
+;; The theory is that most numbers will fit in 32 bits
 ;; so we we have a little optimization for it
 
 ;; We need this for circularity stuff.
@@ -136,7 +136,7 @@
 
 (defun dump-int (obj stream)
   (declare (optimize speed (safety 0) (debug 0)))
-  (etypecase obj 
+  (etypecase obj
     ((unsigned-byte 8) (write-byte 1 stream) (write-byte obj stream))
     ((unsigned-byte 32) (write-byte 2 stream) (store-32-bit obj stream))))
 
@@ -186,7 +186,7 @@
           :do
           (incf sum (* bit (expt 2 pos))))))
 
-        
+
 
 (defun bits->num (bits)
   (loop with sum = 0
@@ -280,7 +280,7 @@
 
 ;; chars
 (defstore-cl-store (obj character stream)
-  (output-type-code +character-code+ stream)    
+  (output-type-code +character-code+ stream)
   (store-object (char-code obj) stream))
 
 (defrestore-cl-store (character stream)
@@ -288,7 +288,7 @@
 
 ;; complex
 (defstore-cl-store (obj complex stream)
-  (output-type-code +complex-code+ stream)    
+  (output-type-code +complex-code+ stream)
   (store-object (realpart obj) stream)
   (store-object (imagpart obj) stream))
 
@@ -304,7 +304,7 @@
          (store-object (symbol-name obj) stream)
          (store-object (package-name (symbol-package obj))
                        stream))
-        ;; Symbols with no home package 
+        ;; Symbols with no home package
         (t (output-type-code +gensym-code+ stream)
            (store-object (symbol-name obj) stream))))
 
@@ -442,7 +442,7 @@ Binding this variable to true only affects storing and makes no difference when 
 ;; hash tables
 (defstore-cl-store (obj hash-table stream)
   (declare (optimize speed))
-  (output-type-code +hash-table-code+ stream)    
+  (output-type-code +hash-table-code+ stream)
   (store-object (hash-table-rehash-size obj) stream)
   (store-object (hash-table-rehash-threshold obj) stream)
   (store-object (hash-table-size obj) stream)
@@ -468,9 +468,9 @@ Binding this variable to true only affects storing and makes no difference when 
         (loop repeat count do
               ;; Unfortunately we can't use the normal setting here
               ;; since there could be a circularity in the key
-              ;; and we need to make sure that both objects are 
+              ;; and we need to make sure that both objects are
               ;; removed from the stream at this point.
-              (setting-hash (restore-object stream) 
+              (setting-hash (restore-object stream)
                             (restore-object stream))))
       hash)))
 
@@ -504,11 +504,11 @@ Binding this variable to true only affects storing and makes no difference when 
     (store-object length stream)))
 
 (defstore-cl-store (obj standard-object stream)
-  (output-type-code +standard-object-code+ stream)    
+  (output-type-code +standard-object-code+ stream)
   (store-type-object obj stream))
 
 (defstore-cl-store (obj condition stream)
-  (output-type-code +condition-code+ stream)    
+  (output-type-code +condition-code+ stream)
   (store-type-object obj stream))
 
 (defun restore-type-object (stream)
@@ -522,7 +522,7 @@ Binding this variable to true only affects storing and makes no difference when 
                 (integer (assert (= count slot-name) (count slot-name)
                            "Number of slots restored does not match slots stored.")
                          (return))
-                (symbol 
+                (symbol
                  ;; slot-names are always symbols so we don't
                  ;; have to worry about circularities
                  (setting (slot-value obj slot-name) (restore-object stream)))))))
@@ -542,7 +542,7 @@ Binding this variable to true only affects storing and makes no difference when 
   (store-object (mapcar #'get-slot-details (class-direct-slots obj))
                 stream)
   (store-object (mapcar (if *store-class-superclasses*
-                            #'identity 
+                            #'identity
                             #'class-name)
                         (class-direct-superclasses obj))
                 stream)
@@ -556,7 +556,7 @@ Binding this variable to true only affects storing and makes no difference when 
          (keywords '(:direct-slots :direct-superclasses
                      :metaclass))
          (final (loop for keyword in keywords
-                      for slot in (list slots 
+                      for slot in (list slots
                                         (or supers (list 'standard-object))
                                         meta)
                       nconc (list keyword slot))))
@@ -611,7 +611,7 @@ Binding this variable to true only affects storing and makes no difference when 
   (loop for x from 0 below (array-total-size obj) do
         (store-object (row-major-aref obj x) stream)))
 
- 
+
 
 
 (defrestore-cl-store (array stream)
@@ -623,12 +623,12 @@ Binding this variable to true only affects storing and makes no difference when 
          (displaced-to (restore-object stream))
          (displaced-offset (restore-object stream))
          (size (restore-object stream))
-         (res (make-array dimensions  
+         (res (make-array dimensions
                           :element-type element-type
                           :adjustable adjustable
                           :fill-pointer fill-pointer)))
     (declare (type cons dimensions) (type array-tot-size size))
-    (when displaced-to 
+    (when displaced-to
       (adjust-array res dimensions :displaced-to displaced-to
                     :displaced-index-offset displaced-offset))
     (resolving-object (obj res)
@@ -653,7 +653,7 @@ Binding this variable to true only affects storing and makes no difference when 
       (dotimes (i size)
         ;; we need to copy the index so that
         ;; it's value at this time is preserved.
-        (let ((x i)) 
+        (let ((x i))
           (setting (aref obj x) (restore-object stream)))))
     res))
 
@@ -664,7 +664,7 @@ Binding this variable to true only affects storing and makes no difference when 
   (store-object (length obj) stream)
   (loop for x across obj do
         (write-byte x stream)))
- 
+
 (defrestore-cl-store (simple-byte-vector stream)
   (declare (optimize speed (safety 1) (debug 0)))
   (let* ((size (restore-object stream))
@@ -674,12 +674,12 @@ Binding this variable to true only affects storing and makes no difference when 
       (dotimes (i size)
         ;; we need to copy the index so that
         ;; it's value at this time is preserved.
-        (let ((x i)) 
+        (let ((x i))
           (setting (aref obj x) (read-byte stream)))))
     res))
 
 ;; Dumping (unsigned-byte 32) for each character seems
-;; like a bit much when most of them will be 
+;; like a bit much when most of them will be
 ;; base-chars. So we try to cater for them.
 (defvar *char-marker* (code-char 255)
   "Largest character that can be represented in 8 bits")
@@ -744,7 +744,7 @@ Binding this variable to true only affects storing and makes no difference when 
 
 ;; packages (from Thomas Stenhaug)
 (defstore-cl-store (obj package stream)
-  (output-type-code +package-code+ stream)  
+  (output-type-code +package-code+ stream)
   (store-object (package-name obj) stream)
   (store-object (package-nicknames obj) stream)
   (store-object (mapcar (if *store-used-packages* #'identity #'package-name)
@@ -808,7 +808,7 @@ Binding this variable to true only affects storing and makes no difference when 
 #+sbcl
 (defvar *sbcl-readtable* (copy-readtable nil))
 #+sbcl
-(set-macro-character #\# #'(lambda (c s) 
+(set-macro-character #\# #'(lambda (c s)
                              (declare (ignore c s))
                              (store-error "Invalid character in function name."))
                      nil
@@ -837,7 +837,7 @@ Binding this variable to true only affects storing and makes no difference when 
                    (store-error "Unable to determine function name for ~A."
                                 obj))))))
           (t (store-error "Unable to determine function name for ~A."
-                          obj)))))  
+                          obj)))))
 
 #-clisp
 (defstore-cl-store (obj function stream)
@@ -860,5 +860,3 @@ Binding this variable to true only affects storing and makes no difference when 
 
 
 (setf *default-backend* (find-backend 'cl-store))
-
-;; EOF

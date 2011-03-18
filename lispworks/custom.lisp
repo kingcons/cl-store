@@ -33,5 +33,3 @@
             (resolving-object (obj new-instance)
               (setting (slot-value obj slot-name) (restore-object stream)))))
     new-instance))
-
-;; EOF

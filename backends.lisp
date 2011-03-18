@@ -3,7 +3,7 @@
 
 ;; CL-STORE now has a concept of backends.
 ;; store and restore now take an optional  backend as an
-;;  argument to do the actual restoring. Examples of use are 
+;;  argument to do the actual restoring. Examples of use are
 ;; in default-backend.lisp and xml-backend.lisp
 
 (in-package :cl-store)
@@ -25,15 +25,15 @@
 (deftype backend-designator ()
   `(or symbol backend))
 
-(defparameter *registered-backends* nil 
+(defparameter *registered-backends* nil
   "An assoc list mapping backend-names to the backend objects")
 
 (defun find-backend (name &optional errorp)
   (declare (type symbol name))
-  "Return backup called NAME. If there is no such backend NIL is returned 
+  "Return backup called NAME. If there is no such backend NIL is returned
 if ERRORP is false, otherwise an error is signalled."
   (or (cdr (assoc name *registered-backends*))
-      (if errorp 
+      (if errorp
           (error "Backend named ~S does not exist." name)
           nil)))
 
@@ -48,7 +48,7 @@ if ERRORP is false, otherwise an error is signalled."
 (defun get-store-macro (name)
   "Return the defstore-? macro which will be used by a custom backend"
   (let ((macro-name (symbolicate 'defstore- name)))
-    `(defmacro ,macro-name ((var type stream &optional qualifier) 
+    `(defmacro ,macro-name ((var type stream &optional qualifier)
                             &body body)
        (with-gensyms (gbackend)
          `(dspec:def (,',macro-name (,var ,type ,stream))
@@ -63,7 +63,7 @@ if ERRORP is false, otherwise an error is signalled."
 (defun get-store-macro (name)
   "Return the defstore-? macro which will be used by a custom backend"
   (let ((macro-name (symbolicate 'defstore- name)))
-    `(defmacro ,macro-name ((var type stream &optional qualifier) 
+    `(defmacro ,macro-name ((var type stream &optional qualifier)
                             &body body)
        (with-gensyms (gbackend)
          `(defmethod internal-store-object ,@(if qualifier (list qualifier) nil)
@@ -97,7 +97,7 @@ if ERRORP is false, otherwise an error is signalled."
             ,@body)))))
 
 
-(defun register-backend (name class magic-number stream-type old-magic-numbers 
+(defun register-backend (name class magic-number stream-type old-magic-numbers
                               compatible-magic-numbers)
   (declare (type symbol name))
   (let ((instance (make-instance class
@@ -144,7 +144,7 @@ if ERRORP is false, otherwise an error is signalled."
 (defmacro defbackend (name &key (stream-type ''(unsigned-byte 8))
                            (magic-number nil) fields (extends '(backend))
                            (old-magic-numbers nil) (compatible-magic-numbers nil))
-  "Defines a new backend called NAME. Stream type must be either 'char or 'binary. 
+  "Defines a new backend called NAME. Stream type must be either 'char or 'binary.
 FIELDS is a list of legal slots for defclass. MAGIC-NUMBER, when supplied, will
 be written down stream as verification and checked on restoration.
 EXTENDS is a class to extend, which must be backend or a class which extends
@@ -156,12 +156,10 @@ backend"
        ,(get-class-form name fields extends)
        ,(get-store-macro name)
        ,(get-restore-macro name))
-     (register-backend ',name ',name ,magic-number 
+     (register-backend ',name ',name ,magic-number
                        ,stream-type ',old-magic-numbers ',compatible-magic-numbers)))
 
 (defmacro with-backend (backend &body body)
   "Run BODY with *default-backend* bound to BACKEND"
   `(let* ((*default-backend* (backend-designator->backend ,backend)))
     ,@body))
-
-;; EOF

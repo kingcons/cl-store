@@ -59,11 +59,8 @@
   :components ((:file "xml-tests"))
   :depends-on (cl-store-tests cl-store-xml))
 
-(defmethod perform ((op test-op) 
+(defmethod perform ((op test-op)
                     (sys (eql (find-system :cl-store-xml-tests))))
   (or (funcall (find-symbol "RUN-TESTS" "CL-STORE-TESTS")
                (symbol-value (find-symbol "*XML-BACKEND*" "CL-STORE-XML")))
       (error "Test-op Failed.")))
-
-
-;; EOF

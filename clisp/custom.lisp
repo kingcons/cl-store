@@ -47,5 +47,3 @@
 
 (defrestore-cl-store (built-in-function stream)
   (fdefinition (restore-object stream)))
-
-;; EOF

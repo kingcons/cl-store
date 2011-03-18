@@ -2,27 +2,27 @@
 ;; See the file LICENCE for licence information.
 
 ;; Defines a special backend type which specializes various methods
-;; in plumbing.lisp to make it nice and easy to 
+;; in plumbing.lisp to make it nice and easy to
 ;; resolve possible circularities in objects.
 ;; Most of the work is done using the resolving-object
-;; macro which knows how to handle an object which 
+;; macro which knows how to handle an object which
 ;; is a referrer to a previously restored value.
 ;; Backends wanting to make use of this should take
 ;; a look at default-backend.lisp and xml-backend.lisp
-;; paying special attention to the defbackend form and the 
+;; paying special attention to the defbackend form and the
 ;; defrestore definitions for cons, array, simple-vector
 ;; array and hash-table.
 ;;
 ;; As a note this will ignore integers, symbols or characters
 ;; as referrer values. It will handle all other EQ number although
-;; software depending on eq numbers are not conforming 
+;; software depending on eq numbers are not conforming
 ;; programs according to the Hyperspec(notes in EQ).
 
 (in-package :cl-store)
 
 (defvar *check-for-circs* t)
 
-(defstruct delay 
+(defstruct delay
   value (completed nil))
 
 (defmacro delay (&rest body)
@@ -37,14 +37,14 @@
 
 ;; The definitions for setting and setting-hash sits in resolving-object.
 (defmacro setting (place get)
-  "Resolve the possible referring object retrieved by GET and 
+  "Resolve the possible referring object retrieved by GET and
   set it into PLACE. Only usable within a resolving-object form."
   (declare (ignore place get))
   #+ecl nil
   #-ecl (error "setting can only be used inside a resolving-object form."))
 
 (defmacro setting-hash (getting-key getting-value)
-  "Insert the value retrieved by GETTING-VALUE with the key 
+  "Insert the value retrieved by GETTING-VALUE with the key
   retrieved by GETTING-KEY, resolving possible circularities.
   Only usable within a resolving-object form."
   (declare (ignore getting-key getting-value))
@@ -52,7 +52,7 @@
   #-ecl (error "setting-hash can only be used inside a resolving-object form."))
 
 (defmacro resolving-object ((var create) &body body)
-  "Execute body attempting to resolve circularities found in 
+  "Execute body attempting to resolve circularities found in
    form CREATE."
   (with-gensyms (value key)
     `(macrolet ((setting (place getting)
@@ -133,7 +133,7 @@ hash-tables as produced by the function create-serialize-hash."
 (defmethod backend-store ((backend resolving-backend) (place stream) (obj t))
   "Store OBJ into PLACE. Does the setup for counters and seen values."
   (declare (optimize speed (safety 1) (debug 0)))
-  (let ((*stored-counter* 0) 
+  (let ((*stored-counter* 0)
         (*stored-values* (get-store-hash)))
     (store-backend-code backend place)
     (backend-store-object backend obj place)
@@ -182,7 +182,7 @@ hash-tables as produced by the function create-serialize-hash."
   (aif (and *check-for-circs* (get-ref obj))
        (store-referrer backend it place)
        (internal-store-object backend obj place)))
-       
+
 ;; Restoration.
 (declaim (type (or fixnum null) *restore-counter*))
 (defvar *restore-counter*)
@@ -191,7 +191,7 @@ hash-tables as produced by the function create-serialize-hash."
 (defvar *restore-hash-size* 50)
 
 (defmethod backend-restore ((backend resolving-backend) (place stream))
-  "Restore an object from PLACE using BACKEND. Does the setup for 
+  "Restore an object from PLACE using BACKEND. Does the setup for
   various variables used by resolving-object."
   (let ((*restore-counter* 0)
         (*need-to-fix* nil)
@@ -215,13 +215,13 @@ hash-tables as produced by the function create-serialize-hash."
 
 (defgeneric referrerp (backend reader)
   (:method ((backend t) (reader t))
-   (error "referrerp must be specialized for backend ~A." (name backend)))) 
+   (error "referrerp must be specialized for backend ~A." (name backend))))
 
 (defun handle-restore (place backend)
   (declare (optimize speed (safety 1) (debug 0)))
   (let ((reader (get-next-reader backend place)))
     (declare (type symbol reader))
-    (cond ((referrerp backend reader) 
+    (cond ((referrerp backend reader)
            (incf *restore-counter*)
            (new-val (internal-restore-object backend reader place)))
           ((not (int-or-char-p backend reader))
@@ -240,8 +240,8 @@ hash-tables as produced by the function create-serialize-hash."
 ; but was renamed to handle eq symbols (gensym's mainly).
 ; The basic concept is that we don't bother
 ; checking for circularities with integers or
-; characters since these aren't gauranteed to be eq 
-; even if they are the same object. 
+; characters since these aren't gauranteed to be eq
+; even if they are the same object.
 ; (notes for eq in CLHS).
 (defgeneric int-or-char-p (backend fn)
   (:method ((backend backend) (fn symbol))
@@ -257,5 +257,3 @@ hash-tables as produced by the function create-serialize-hash."
             new-val
             val))
       val))
-
-;; EOF

@@ -19,7 +19,7 @@
 
 (defun compute-slots (class)
   (std-compute-slots class))
-                  
+
 (defun slot-definition-x (val slot)
   (cadr (member val slot)))
 
@@ -68,5 +68,3 @@
   (multiple-value-bind (l cp name) (function-lambda-expression gf)
     (declare (ignore l cp))
     name))
-
-;; EOF

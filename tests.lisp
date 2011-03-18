@@ -28,7 +28,7 @@
 (deftestit integer.4 -2322993)
 (deftestit integer.5 most-positive-fixnum)
 (deftestit integer.6 most-negative-fixnum)
-(deftestit integer.7 #x100000000) 
+(deftestit integer.7 #x100000000)
 
 ;; ratios
 (deftestit ratio.1 1/2)
@@ -67,7 +67,7 @@
 
 ;; infinite floats
 #+(or sbcl cmu lispworks allegro)
-(progn 
+(progn
   #+sbcl (sb-int:set-floating-point-modes :traps nil)
   #+cmu (ext:set-floating-point-modes :traps nil)
   (deftestit infinite-float.1 (expt most-positive-single-float 3))
@@ -84,7 +84,7 @@
 (deftestit char.1 #\Space)
 (deftestit char.2 #\f )
 (deftestit char.3 #\Rubout)
-(deftestit char.4 (code-char 255)) 
+(deftestit char.4 (code-char 255))
 
 
 ;; various strings
@@ -111,7 +111,7 @@ bar")
 (deftestit vector.1 #(1 2 3 4))
 
 
-(deftestit vector.2 (make-array 5 :element-type 'fixnum 
+(deftestit vector.2 (make-array 5 :element-type 'fixnum
                                 :initial-contents (list 1 2 3 4 5)))
 
 (deftestit vector.3
@@ -129,7 +129,7 @@ bar")
 ;; (array octect (*))
 
 (deftestit vector.octet.1 (make-array 10 :element-type '(unsigned-byte 8)))
-           
+
 
 ;; arrays
 (deftestit array.1
@@ -142,10 +142,10 @@ bar")
   (make-array '(2 2) :element-type '(mod 10) :initial-element 3))
 
 (deftestit array.4
-  (make-array  '(2 3 5) 
+  (make-array  '(2 3 5)
               :initial-contents
               '(((1 2 #\f 5 12.0) (#\Space "fpp" 4 1 0) ('d "foo" #() 3 -1))
-                ((0 #\a #\b 4 #\q) (12.0d0 0 '(d) 4 1) 
+                ((0 #\a #\b 4 #\q) (12.0d0 0 '(d) 4 1)
                  (#\Newline 1 7 #\4 #\0)))))
 
 (deftestit array.5
@@ -155,8 +155,8 @@ bar")
          (a3 (make-array 2 :displaced-to a2
                          :displaced-index-offset 2)))
     a3))
-    
-         
+
+
 
 
 ;; symbols
@@ -189,7 +189,7 @@ bar")
 (deftestit cons.1 '(1 2 3))
 (deftestit cons.2 '((1 2 3)))
 (deftestit cons.3 '(#\Space 1 1/2 1.3 #(1 2 3)))
-  
+
 (deftestit cons.4  '(1 . 2))
 (deftestit cons.5  '(t . nil))
 (deftestit cons.6 '(1 2 3 . 5))
@@ -202,14 +202,14 @@ bar")
 
 
 ;; hash tables
-; for some reason (make-hash-table) is not equalp 
+; for some reason (make-hash-table) is not equalp
 ; to (make-hash-table) with ecl.
 
 #-ecl
 (deftestit hash.1 (make-hash-table))
 
 #-ecl
-(defvar *hash* (let ((in (make-hash-table :test #'equal 
+(defvar *hash* (let ((in (make-hash-table :test #'equal
                                           :rehash-threshold 0.4 :size 20
                                           :rehash-size 40)))
                  (dotimes (x 1000) (setf (gethash (format nil "~R" x) in) x))
@@ -221,7 +221,7 @@ bar")
 ;; packages
 (deftestit package.1 (find-package :cl-store))
 
-(defpackage foo 
+(defpackage foo
   (:nicknames foobar)
   (:use :cl)
   (:shadow cl:format)
@@ -243,11 +243,11 @@ bar")
 
 ; unfortunately it's difficult to portably test the internal symbols
 ; in a package so we just assume that it's OK.
-(deftest package.2 
+(deftest package.2
          (package-restores)
          ("FOO" ("COMMON-LISP") ("FOOBAR") t t))
 
-;; objects 
+;; objects
 (defclass foo ()
   ((x :accessor get-x :initarg :x)))
 
@@ -277,7 +277,7 @@ bar")
            (equalp (get-y val) (get-y ret)))))
   t)
 
-(deftest standard-object.3 
+(deftest standard-object.3
   (let ((*store-class-slots* nil)
         (val (make-instance 'baz :z 9)))
     (store val *test-file*)
@@ -297,7 +297,7 @@ bar")
   t)
 
 ;; classes
-(deftest standard-class.1 (progn (store (find-class 'foo) *test-file*) 
+(deftest standard-class.1 (progn (store (find-class 'foo) *test-file*)
                                  (restore *test-file*)
                                  t)
   t)
@@ -317,7 +317,7 @@ bar")
 ;; conditions
 (deftest condition.1
   (handler-case (/ 1 0)
-    (division-by-zero (c) 
+    (division-by-zero (c)
       (store c *test-file*)
       (typep (restore *test-file*) 'division-by-zero)))
   t)
@@ -327,7 +327,7 @@ bar")
     ;; allegro pre 7.0 signalled a simple-error here
     ((or type-error simple-error) (c)
       (store c *test-file*)
-      (typep (restore *test-file*) 
+      (typep (restore *test-file*)
              '(or type-error simple-error))))
   t)
 
@@ -339,7 +339,7 @@ bar")
 (defstruct (b (:include a))
   d e f)
 
-#+(or sbcl cmu lispworks openmcl) 
+#+(or sbcl cmu lispworks openmcl)
 (deftestit structure-object.1 (make-a :a 1 :b 2 :c 3))
 #+(or sbcl cmu lispworks openmcl)
 (deftestit structure-object.2 (make-b :a 1 :b 2 :c 3 :d 4 :e 5 :f 6))
@@ -356,15 +356,15 @@ bar")
 (deftestit pathname.1 #P"/home/foo")
 (deftestit pathname.2 (make-pathname :name "foo"))
 (deftestit pathname.3 (make-pathname :name "foo" :type "bar"))
-                                      
+
 
 ; built-in classes
 (deftestit built-in.1 (find-class 'hash-table))
 (deftestit built-in.2 (find-class 'integer))
-                                  
+
 
 ;; find-backend tests
-(deftest find-backend.1 
+(deftest find-backend.1
     (and (find-backend 'cl-store) t)
   t)
 
@@ -435,7 +435,7 @@ bar")
 
 
 (defvar circ6 (let ((y (make-array '(2 2 2)
-                                   :initial-contents '((("foo" "bar") 
+                                   :initial-contents '((("foo" "bar")
                                                         ("me" "you"))
                                                        ((5 6) (7 8))))))
                 (setf (aref y 1 1 1) y)
@@ -464,7 +464,7 @@ bar")
                  (make-pathname :name x :type x)))
 
 
-;; clisp apparently creates a copy of the strings in a pathname 
+;; clisp apparently creates a copy of the strings in a pathname
 ;; so a test for eqness is pointless.
 #-clisp
 (deftest circ.8 (progn (store circ.8 *test-file*)
@@ -482,7 +482,7 @@ bar")
                     (and (eql rest (aref rest 3))
                          (eql (aref rest 4) (aref rest 0)))))
   t)
-                        
+
 (deftest circ.10 (let* ((a1 (make-array 5))
                         (a2 (make-array 4 :displaced-to a1
                                         :displaced-index-offset 1))
@@ -536,7 +536,7 @@ bar")
                      (and (eq ret (cddddr ret))
                           (eq (fourth ret) ret))))
          t)
-                   
+
 
 
 
@@ -600,7 +600,7 @@ bar")
 (defrestore-cl-store (random-obj buff)
   (random (restore-object buff)))
 
-  
+
 (deftest custom.1
   (progn (store (make-instance 'random-obj :size 5) *test-file* )
          (typep (restore *test-file*) '(integer 0 4)))
@@ -615,7 +615,7 @@ bar")
 (deftestit function.1 #'car)
 
 
-(deftest function.2 
+(deftest function.2
          (progn (store #'cl-store::mkstr *test-file*)
            (let ((fn (restore *test-file*)))
              (every (lambda (args)
@@ -624,7 +624,7 @@ bar")
                       ("a" "b" "c")
                       ("1 2" "ab " "f oO")))))
          t)
-                      
+
 ;; Closures are clisp only.
 #+clisp
 (deftest function.3
@@ -658,7 +658,7 @@ bar")
 (deftestit gfunction.3 #'(setf get-y))
 
 
-(deftest nocirc.1 
+(deftest nocirc.1
     (let* ((string "FOO")
            (list `(,string . ,string))
            (*check-for-circs* nil))
@@ -677,7 +677,7 @@ bar")
                    (:predicate is-foo)
                    (:print-function (lambda (obj st dep)
                                       (declare (ignore dep))
-                                      (print-unreadable-object (obj st :type t) 
+                                      (print-unreadable-object (obj st :type t)
                                         (format st "~A" (f-x obj))))))
   (y 0 :type integer) (z nil :type simple-string))
 
@@ -720,5 +720,3 @@ bar")
     (ignore-errors (delete-file *test-file*))))
 
 (run-tests (find-backend 'cl-store:cl-store))
-;; EOF
-

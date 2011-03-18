@@ -30,7 +30,7 @@ CLISP, ECL and AllegroCL are supported.")
      pathname)))
 
 (defmethod perform ((op compile-op) (component non-required-file))
-  (when (probe-file (component-pathname component)) 
+  (when (probe-file (component-pathname component))
     (call-next-method)))
 
 (defmethod perform ((op load-op) (component non-required-file))
@@ -71,5 +71,3 @@ CLISP, ECL and AllegroCL are supported.")
 (defsystem cl-store-tests
   :depends-on (rt cl-store)
   :components ((:file "tests")))
-
-;; EOF

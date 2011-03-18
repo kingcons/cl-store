@@ -32,6 +32,3 @@
 (defrestore-xml (double-float stream)
   (kernel::make-double-float (restore-first (get-child "HIGH-BITS" stream))
                              (restore-first (get-child "LOW-BITS" stream))))
-         
-
-;; EOF

@@ -14,9 +14,9 @@
 
 (defgeneric serializable-slots (object)
   (declare (optimize speed))
-  (:documentation 
+  (:documentation
    "Return a list of slot-definitions to serialize. The default
-    is to call serializable-slots-using-class with the object 
+    is to call serializable-slots-using-class with the object
     and the objects class")
   (:method ((object standard-object))
    (serializable-slots-using-class object (class-of object)))
@@ -26,7 +26,7 @@
   (:method ((object condition))
    (serializable-slots-using-class object (class-of object))))
 
-; unfortunately the metaclass of conditions in sbcl and cmu 
+; unfortunately the metaclass of conditions in sbcl and cmu
 ; are not standard-class
 
 (defgeneric serializable-slots-using-class (object class)
@@ -35,7 +35,7 @@
    The default calls compute slots with class")
   (:method ((object t) (class standard-class))
    (class-slots class))
-#+(or sbcl cmu openmcl allegro) 
+#+(or sbcl cmu openmcl allegro)
   (:method ((object t) (class structure-class))
    (class-slots class))
 #+sbcl
@@ -49,10 +49,10 @@
 ; Generify get-slot-details for customization (from Thomas Stenhaug)
 (defgeneric get-slot-details (slot-definition)
   (declare (optimize speed))
-  (:documentation 
-   "Return a list of slot details which can be used 
+  (:documentation
+   "Return a list of slot details which can be used
     as an argument to ensure-class")
-  (:method ((slot-definition #+(or ecl abcl (and clisp (not mop))) t 
+  (:method ((slot-definition #+(or ecl abcl (and clisp (not mop))) t
                              #-(or ecl abcl (and clisp (not mop))) slot-definition))
    (list :name (slot-definition-name slot-definition)
          :allocation (slot-definition-allocation slot-definition)
@@ -161,5 +161,3 @@ Modified to work on non proper lists."
           ((null (cdr fast)) (return (values (1+ n) (cdr fast))))
           ((and (eq fast slow) (> n 0)) (return (values (/ n 2) list)))
           ((not (consp (cdr fast))) (return (values (1+ n) (cdr fast)))))))
-
-;; EOF

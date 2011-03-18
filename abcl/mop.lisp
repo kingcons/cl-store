@@ -25,5 +25,3 @@
 ;; This doesn't seem to be available in ABCL
 (defmethod slot-definition-type (slotdef)
   t)
-
-;; EOF

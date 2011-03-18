@@ -1,8 +1,8 @@
 ;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Base: 10 -*-
-;; See the file LICENCE for licence information 
+;; See the file LICENCE for licence information
 
 ;;  The framework where everything hangs together.
-;; 
+;;
 
 (in-package :cl-store)
 
@@ -24,19 +24,19 @@ only store the package name")
 
 
 ;; conditions
-;; From 0.2.3 all conditions which are signalled from 
-;; store or restore will signal a store-error or a 
+;; From 0.2.3 all conditions which are signalled from
+;; store or restore will signal a store-error or a
 ;; restore-error respectively inside a handler-bind.
 (defun cl-store-report (condition stream)
   (aif (caused-by condition)
        (format stream "~A" it)
-       (apply #'format stream (format-string condition) 
+       (apply #'format stream (format-string condition)
               (format-args condition))))
 
 (define-condition cl-store-error (error)
-  ((caused-by :accessor caused-by :initarg :caused-by 
+  ((caused-by :accessor caused-by :initarg :caused-by
               :initform nil)
-   (format-string :accessor format-string :initarg :format-string 
+   (format-string :accessor format-string :initarg :format-string
                   :initform "Unknown")
    (format-args :accessor format-args :initarg :format-args :initform nil))
   (:report cl-store-report)
@@ -66,7 +66,7 @@ only store the package name")
                        :direction :output :if-exists :supersede)
       (backend-store backend s obj))))
 
-(defgeneric store (obj place &optional designator) 
+(defgeneric store (obj place &optional designator)
   (:documentation "Store OBJ into Stream PLACE using backend BACKEND.")
   (:method ((obj t) (place t) &optional (designator *default-backend*))
    "Store OBJ into Stream PLACE using backend BACKEND."
@@ -93,7 +93,7 @@ only store the package name")
   (:method ((backend backend) (place pathname) (obj t))
     "Store OBJ into file designator PLACE."
     (store-to-file obj place backend))
-  (:documentation "Method wrapped by store, override this method for 
+  (:documentation "Method wrapped by store, override this method for
     custom behaviour (see circularities.lisp)."))
 
 (defgeneric store-backend-code (backend stream)
@@ -101,17 +101,17 @@ only store the package name")
     (declare (optimize speed))
     (when-let (magic (magic-number backend))
       (store-32-bit magic stream)))
-  (:documentation 
+  (:documentation
    "Store magic-number of BACKEND, when present, into STREAM."))
 
 (defun store-object (obj stream &optional (backend *current-backend*))
-  "Store OBJ into STREAM. Not meant to be overridden, 
+  "Store OBJ into STREAM. Not meant to be overridden,
    use backend-store-object instead"
   (backend-store-object backend obj stream))
 
 (defgeneric backend-store-object (backend obj stream)
   (:documentation
-   "Wrapped by store-object, override this to do custom storing 
+   "Wrapped by store-object, override this to do custom storing
    (see circularities.lisp for an example).")
   (:method ((backend backend) (obj t) (stream t))
     "The default, just calls internal-store-object."
@@ -128,8 +128,8 @@ only store the package name")
 
 ;; restoration
 (defgeneric restore (place &optional backend)
-  (:documentation 
-   "Restore and object FROM PLACE using BACKEND. Not meant to be 
+  (:documentation
+   "Restore and object FROM PLACE using BACKEND. Not meant to be
    overridden, use backend-restore instead")
   (:method (place &optional (designator *default-backend*))
     "Entry point for restoring objects (setfable)."
@@ -141,7 +141,7 @@ only store the package name")
                               (signal 'restore-error :caused-by c))))
         (backend-restore backend place)))))
 
-  
+
 (defgeneric backend-restore (backend place)
   (:documentation "Wrapped by restore. Override this to do custom restoration")
   (:method ((backend backend) (place stream))
@@ -162,7 +162,7 @@ only store the package name")
   (let ((element-type (stream-type backend)))
     (with-open-file (s place :element-type element-type :direction :input)
       (backend-restore backend s))))
-     
+
 (defun (setf restore) (new-val place &optional (backend *default-backend*))
   (store new-val place backend))
 
@@ -182,17 +182,17 @@ incompatible version of backend ~A." (name backend)))
                 (t (restore-error "Stream does not contain a stored object~
  for backend ~A."
                                   (name backend))))))))
-  (:documentation   
+  (:documentation
    "Check to see if STREAM actually contains a stored object for BACKEND."))
 
 (defun lookup-reader (val readers)
   (gethash val readers))
 
 (defgeneric get-next-reader (backend place)
-  (:documentation 
-   "Method which must be specialized for BACKEND to return 
+  (:documentation
+   "Method which must be specialized for BACKEND to return
    the next function to restore an object from PLACE.
-   If no reader is found return a second value which will be included 
+   If no reader is found return a second value which will be included
    in the error.")
   (:method ((backend backend) (place t))
    (declare (ignore place))
@@ -216,6 +216,3 @@ incompatible version of backend ~A." (name backend)))
     (internal-restore-object backend (get-next-reader backend place) place)))
 
 (defgeneric internal-restore-object (backend type place))
-
-
-;; EOF

@@ -48,7 +48,7 @@
 (defun info-or-die (obj)
   (let ((wrapper (get-layout obj)))
     (if wrapper
-        (or (get-info wrapper) 
+        (or (get-info wrapper)
             (store-error "No defstruct-definition for ~A." obj))
         (store-error "No wrapper for ~A." obj))))
 
@@ -58,9 +58,9 @@
                   *sbcl-struct-inherits*))
 
 (defun get-supers (obj)
-  (loop for x in (save-able-supers obj) 
+  (loop for x in (save-able-supers obj)
      collect (let ((name (dd-name (get-info x))))
-               (if *store-class-superclasses* 
+               (if *store-class-superclasses*
                    (find-class name)
                    name))))
 
@@ -75,7 +75,7 @@
   (store-object (sdef-supers obj) stream)
   (store-object (sdef-info obj) stream))
 
-;; Restoring 
+;; Restoring
 (defun sbcl-struct-defs (info)
   (append (sb-kernel::constructor-definitions info)
           (sb-kernel::class-method-definitions info)))
@@ -121,42 +121,40 @@
 
 (defun sb-kernel-defstruct (dd supers source)
   (declare (ignorable source))
-  #+defstruct-has-source-location 
+  #+defstruct-has-source-location
   (sb-kernel::%defstruct dd supers source)
   #-defstruct-has-source-location
   (sb-kernel::%defstruct dd supers))
 
 (defun sbcl-define-structure (dd supers)
-  (cond ((or *nuke-existing-classes*  
+  (cond ((or *nuke-existing-classes*
              (not (find-class (dd-name dd) nil)))
          ;; create-struct
          (sb-kernel-defstruct dd supers nil)
          ;; compiler stuff
-         (sb-kernel::%compiler-defstruct dd supers) 
+         (sb-kernel::%compiler-defstruct dd supers)
          ;; create make-?
          (create-make-foo dd))
         (t (find-class (dd-name dd)))))
-         
+
 (defun super-layout (super)
   (etypecase super
     (symbol (get-layout (find-class super)))
-    (structure-class 
+    (structure-class
      (super-layout (dd-name (info-or-die super))))))
 
 (defun super-layouts (supers)
-  (loop for super in supers 
+  (loop for super in supers
      collect (super-layout super)))
 
 (defrestore-cl-store (structure-class stream)
   (restore-object stream))
-    
+
 (defrestore-cl-store (struct-def stream)
   (let* ((supers (super-layouts (restore-object stream)))
          (dd (restore-object stream)))
-    (sbcl-define-structure dd (if supers 
+    (sbcl-define-structure dd (if supers
                                   (coerce (append  *sbcl-struct-inherits*
                                                    supers)
                                           'vector)
                                   (coerce *sbcl-struct-inherits* 'vector)))))
-
-;; EOF

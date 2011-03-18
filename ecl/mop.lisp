@@ -25,5 +25,3 @@
 
 (defun slot-definition-type (slot)
   (nth 7 slot))
-
-;; EOF
