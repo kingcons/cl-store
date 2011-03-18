@@ -1,0 +1,11 @@
+TODO:
+The following are ideas but not commitments. I'm still familiarizing myself with the code base enough to make responsible decisions about how to go forward.
+
+* Closure patches
+** There are presently two of these on the mailing list, one from Leslie Polzer circa 11/09 and one from Krzysztof circa 06/2010. I've yet to review either for merging. Sean responds to the latter patch saying he doesn't think function serialization should be supported anymore. I want to understand why before moving forward any particular way.
+* XML backend
+** There are comments in the XML backend that says it doesn't work and is only kept around for posterity. As far as I'm concerned that's what Version Control is for. Is there any reason not to strip it out? It's not like anyone is actively using it right?
+* MOP cleanups
+** It seems we go to various lengths to handle MOP (and other) issues ourselves on different implementations. It would be worth checking out whether closer-to-mop or another library with mop portability/compatibility as a stated goal could take care of this work for us.
+* Update the homepage.
+* Little style cleanups (tabs, whitespace, ;;EOF, etc).

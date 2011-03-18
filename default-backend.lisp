@@ -786,8 +786,8 @@ Binding this variable to true only affects storing and makes no difference when 
   (when (and force (find-package package-name))
     (delete-package package-name))
   (let ((package (make-package package-name
-			       :nicknames (restore-object stream)
-			       :use (restore-object stream))))
+                               :nicknames (restore-object stream)
+                               :use (restore-object stream))))
     (loop for symbol across (restore-object stream) do
       (import symbol package))
     (shadow (restore-object stream) package)

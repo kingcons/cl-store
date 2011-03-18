@@ -45,7 +45,7 @@
 (defun info-or-die (obj)
   (let ((wrapper (get-layout obj)))
     (if wrapper
-        (or (get-info wrapper) 
+        (or (get-info wrapper)
             (store-error "No defstruct-definition for ~A." obj))
         (store-error "No wrapper for ~A." obj))))
 
@@ -55,9 +55,9 @@
                   *cmucl-struct-inherits*))
 
 (defun get-supers (obj)
-  (loop for x in (save-able-supers obj) 
+  (loop for x in (save-able-supers obj)
      collect (let ((name (dd-name (get-info x))))
-               (if *store-class-superclasses* 
+               (if *store-class-superclasses*
                    (find-class name)
                    name))))
 
@@ -72,7 +72,7 @@
   (store-object (sdef-supers obj) stream)
   (store-object (sdef-info obj) stream))
 
-;; Restoring 
+;; Restoring
 (defun cmu-struct-defs (dd)
   (append (kernel::define-constructors dd)
           (kernel::define-raw-accessors dd)
@@ -84,36 +84,34 @@
     (find-class (dd-name dd))))
 
 (defun cmu-define-structure (dd supers)
-  (cond ((or *nuke-existing-classes*  
+  (cond ((or *nuke-existing-classes*
              (not (find-class (dd-name dd) nil)))
          ;; create-struct
          (kernel::%defstruct dd supers)
          ;; compiler stuff
-         ;;(kernel::%compiler-defstruct dd) 
+         ;;(kernel::%compiler-defstruct dd)
          ;; create make-?
          (create-make-foo dd))
         (t (find-class (dd-name dd)))))
-  
+
 (defun super-layout (super)
   (etypecase super
     (symbol (get-layout (find-class super)))
-    (structure-class 
+    (structure-class
      (super-layout (dd-name (info-or-die super))))))
 
 (defun super-layouts (supers)
-  (loop for super in supers 
+  (loop for super in supers
      collect (super-layout super)))
 
 (defrestore-cl-store (structure-class stream)
   (restore-object stream))
-    
+
 (defrestore-cl-store (struct-def stream)
   (let* ((supers (super-layouts (restore-object stream)))
          (dd (restore-object stream)))
-    (cmu-define-structure dd (if supers 
+    (cmu-define-structure dd (if supers
                                  (coerce (append  *cmucl-struct-inherits*
                                                   supers)
                                          'vector)
                                  (coerce *cmucl-struct-inherits* 'vector)))))
-
-;; EOF
